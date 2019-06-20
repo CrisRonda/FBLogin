@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Restaurant</string>
+    <string name="facebook_app_id">1091837270999871</string> <string name="fb_login_protocol_scheme">fb1091837270999871</string>
 </resources>

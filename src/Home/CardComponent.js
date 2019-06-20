@@ -8,13 +8,13 @@ export default props => {
             <Left>
                 <Thumbnail source={{ uri: urlUser }} />
                 <Body>
-                    <Text style={{ fontSize: 24, color: '#ffe234' }}>{title}</Text>
-                    <Text note style={{ fontSize: 16, color: '#ff2234', fontWeight: '800' }}>{userName}</Text>
+                    <Text style={{ fontSize: 24, color: 'black' }}>{title}</Text>
+                    <Text note style={{ fontSize: 16, color: 'grey', fontWeight: '400' }}>{userName}</Text>
                 </Body>
             </Left>
         </CardItem>
         <CardItem cardBody>
-            <Image source={{ uri: urlImage }} style={{ height: 200, width: null, flex: 1 }} />
+            <Image source={{ uri: urlImage }} style={{ height: 200, width: null, flex: 1, resizeMode:'contain' }} />
         </CardItem>
         <CardItem>
             <Left>

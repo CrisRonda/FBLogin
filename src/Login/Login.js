@@ -11,17 +11,72 @@ import {
   Button,
   Icon
 } from "native-base";
+import firebase from "react-native-firebase";
+import { LoginManager, AccessToken } from "react-native-fbsdk";
+var firebaseConfig = {
+  apiKey: "AIzaSyCKsLSLpzEfJhUkqfUK1qiX3yCr_c9e0LU",
+  authDomain: "restaurantrn-d53d2.firebaseapp.com",
+  databaseURL: "https://restaurantrn-d53d2.firebaseio.com",
+  projectId: "restaurantrn-d53d2",
+  storageBucket: "restaurantrn-d53d2.appspot.com",
+  messagingSenderId: "751048374344",
+  appId: "1:751048374344:web:57480453227d78b3"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 export default class App extends Component {
   state = {
-    name: ""
+    name: "",
+    user: {}
   };
-  navigateHome = () => {
-    console.log(this.props);
+  loginFacebook = async () => {
     const { navigation } = this.props;
-    navigation.navigate("Home", {
-      name: "Cristian",
-      apellido: "Ronda"
-    });
+    try {
+      let result = await LoginManager.logInWithReadPermissions([
+        "public_profile",
+        "email"
+      ]);
+
+      if (result.isCancelled) {
+        alert("Se cancelo");
+      } else {
+        console.log(
+          `Login success with permissions: ${result.grantedPermissions.toString()}`
+        );
+        // get the access token
+        const data = await AccessToken.getCurrentAccessToken();
+        if (!data) {
+          // handle this however suites the flow of your app
+          throw new Error(
+            "Something went wrong obtaining the users access token"
+          );
+        }
+        // create a new firebase credential with the token
+        const credential = firebase.auth.FacebookAuthProvider.credential(
+          data.accessToken
+        );
+        // login with credential
+        const firebaseUserCredential = await firebase
+          .auth()
+          .signInWithCredential(credential)
+          .then(({ user }) => {
+            const { displayName, email, photoURL } = user._user;
+            this.setState({
+              user: {
+                displayName,
+                email,
+                photoURL
+              }
+            });
+          });
+      }
+    } catch (e) {
+      console.log("Login fallo " + e);
+    }
+    this.state.user.displayName
+      ? navigation.navigate("Home", { user: this.state.user })
+      : null;
   };
   render() {
     return (
@@ -53,17 +108,6 @@ export default class App extends Component {
               <Input secureTextEntry={true} />
             </Item>
           </Form>
-          <Button
-            rounded
-            onPress={this.navigateHome}
-            style={{
-              flex: 1,
-              padding: 16,
-              backgroundColor: "black"
-            }}
-          >
-            <Text>Next</Text>
-          </Button>
         </View>
         <View style={{ flex: 1 }}>
           <Button
@@ -85,7 +129,7 @@ export default class App extends Component {
               flex: 1,
               backgroundColor: "blue"
             }}
-            onPress={() => console.log(this.state.name)}
+            onPress={this.loginFacebook}
           >
             <Icon type="FontAwesome" name="facebook" />
             <Text>Login with Facebook</Text>
